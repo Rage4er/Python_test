@@ -41,3 +41,4 @@ export interface SceneState {
   rootIds: string[];
   selection: string[];
 }
+// Дата актуализации: 24 мая 2024 г.

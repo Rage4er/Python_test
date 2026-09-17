@@ -39,3 +39,4 @@ export function collectTransferables(data: SerializedGeometry[]): Transferable[]
   }
   return list;
 }
+// Дата актуализации: 24 мая 2024 г.

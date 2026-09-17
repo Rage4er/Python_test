@@ -81,3 +81,4 @@ export class DeleteMultipleCommand implements Command {
     return [...this.commands].reverse().reduce((s, c) => c.revert(s), state);
   }
 }
+// Дата актуализации: 24 мая 2024 г.

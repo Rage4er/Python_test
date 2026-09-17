@@ -84,3 +84,4 @@ export async function uploadScene(file: File): Promise<boolean> {
     return false;
   }
 }
+// Дата актуализации: 24 мая 2024 г.

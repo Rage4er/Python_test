@@ -20,3 +20,4 @@ export default defineConfig({
     include: ['three', 'three-bvh-csg', 'three-mesh-bvh'],
   },
 });
+// Дата актуализации: 24 мая 2024 г.

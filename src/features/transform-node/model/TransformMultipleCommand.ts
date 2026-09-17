@@ -33,3 +33,4 @@ export class TransformMultipleCommand implements Command {
     return { ...state, nodes: next };
   }
 }
+// Дата актуализации: 24 мая 2024 г.

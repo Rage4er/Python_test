@@ -31,3 +31,4 @@ export function ShapeLibrary() {
     </div>
   );
 }
+// Дата актуализации: 24 мая 2024 г.

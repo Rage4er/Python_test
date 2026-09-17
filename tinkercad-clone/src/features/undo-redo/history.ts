@@ -35,3 +35,4 @@ export class HistoryManager {
   canRedo(): boolean { return this.future.length > 0; }
   clear(): void { this.past = []; this.future = []; }
 }
+// Дата актуализации: 24 мая 2024 г.

@@ -127,3 +127,4 @@ function Vec3({ value, onChange, step = 1 }: { value: [number, number, number]; 
     </div>
   );
 }
+// Дата актуализации: 24 мая 2024 г.

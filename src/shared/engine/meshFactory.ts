@@ -108,3 +108,4 @@ export function disposeMesh(mesh: THREE.Mesh): void {
   else mat.dispose();
   // Geometry stays in cache
 }
+// Дата актуализации: 24 мая 2024 г.

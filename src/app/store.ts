@@ -96,3 +96,4 @@ export const useAppStore = create<AppState>()(
       set((s) => ({ sceneRevision: s.sceneRevision + 1 })),
   }))
 );
+// Дата актуализации: 24 мая 2024 г.

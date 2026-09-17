@@ -91,3 +91,4 @@ function MenuItem({ label, onClick }: { label: string; onClick: () => void }) {
 function Divider() {
   return <div className="my-1 border-t border-border" />;
 }
+// Дата актуализации: 24 мая 2024 г.

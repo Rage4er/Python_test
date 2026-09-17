@@ -74,3 +74,4 @@ export function useKeyboardShortcuts(): void {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 }
+// Дата актуализации: 24 мая 2024 г.

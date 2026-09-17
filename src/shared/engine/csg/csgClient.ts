@@ -126,3 +126,4 @@ class CsgClient {
 }
 
 export const csgClient = new CsgClient();
+// Дата актуализации: 24 мая 2024 г.

@@ -7,3 +7,4 @@ export interface Command {
   apply(state: SceneState): SceneState;
   revert(state: SceneState): SceneState;
 }
+// Дата актуализации: 24 мая 2024 г.

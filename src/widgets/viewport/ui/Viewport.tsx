@@ -79,3 +79,4 @@ export function Viewport() {
 
   return <canvas ref={canvasRef} className="w-full h-full block" tabIndex={0} />;
 }
+// Дата актуализации: 24 мая 2024 г.

@@ -8,3 +8,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
+// Дата актуализации: 24 мая 2024 г.

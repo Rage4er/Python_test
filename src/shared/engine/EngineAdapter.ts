@@ -438,3 +438,4 @@ export class EngineAdapter {
     this.renderer.dispose();
   }
 }
+// Дата актуализации: 24 мая 2024 г.
