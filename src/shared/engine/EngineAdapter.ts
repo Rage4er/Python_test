@@ -182,6 +182,7 @@ export class EngineAdapter {
     this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.pointer, this.camera);
+    // @ts-ignore - three-mesh-bvh расширяет Raycaster
     this.raycaster.firstHitOnly = true;
 
     const candidates: THREE.Mesh[] = [];
