@@ -1,7 +1,7 @@
 ```
 # Build artifacts
-tsconfig.node.tsbuildinfo
-tsconfig.tsbuildinfo
+dist/
+*.tsbuildinfo
 vite.config.d.ts
 
 # Dependencies
@@ -11,13 +11,11 @@ node_modules/
 .vscode/
 .idea/
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
-*.swp
 
 # Environment
 .env
 .env.local
-.env.*
+.env.
 ```

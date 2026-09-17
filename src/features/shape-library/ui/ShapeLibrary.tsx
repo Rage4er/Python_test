@@ -15,21 +15,18 @@ export function ShapeLibrary() {
 
   return (
     <div className="flex flex-col gap-2">
+      <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+        Библиотека
+      </h3>
       {PRIMITIVES.map((p) => (
-        <div
+        <button
           key={p.type}
-          draggable
-          onDragStart={(e) => {
-            e.dataTransfer.setData('application/x-primitive', p.type);
-            e.dataTransfer.effectAllowed = 'copy';
-          }}
           onClick={() => execute(new CreateNodeCommand({ type: p.type }))}
-          className="px-3 py-2 border border-border rounded cursor-grab active:cursor-grabbing
-                     hover:bg-bg select-none flex items-center gap-2 text-sm"
+          className="flex items-center gap-2 px-3 py-2 text-sm border border-border rounded bg-panel hover:bg-bg transition-colors text-left"
         >
-          <span>{p.emoji}</span>
+          <span className="text-lg">{p.emoji}</span>
           <span>{p.label}</span>
-        </div>
+        </button>
       ))}
     </div>
   );
