@@ -2,16 +2,23 @@
 # Dependencies
 node_modules/
 
-# Build artifacts
+# Build outputs
 dist/
 build/
 target/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# TypeScript/JavaScript
+*.tsbuildinfo
+*.js.map
+*.ts.map
+
+# Vite
+!.vite
+.vite/
+
+# Temporary files
+*.tmp
+*.temp
 
 # Logs
 *.log
@@ -20,49 +27,20 @@ __pycache__/
 .env
 .env.local
 .env.*
+!env.example
+!env.test
 
-# IDE
+# IDE specific
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# OS specific
 .DS_Store
 Thumbs.db
 
 # Coverage
 coverage/
-htmlcov/
-.coverage
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
-
-# TypeScript/JavaScript specific
-*.tsbuildinfo
-.next/
-.nuxt/
-.vuepress/dist/
+.nyc_output/
 ```
