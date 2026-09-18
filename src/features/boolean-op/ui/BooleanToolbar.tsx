@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '@app/store';
+import { ProgressOverlay } from './ProgressOverlay';
 
 export function BooleanToolbar() {
   const selection = useAppStore((s) => s.selection);
@@ -13,11 +14,11 @@ export function BooleanToolbar() {
     setBusy(true);
     setError(null);
     setInfo(null);
-    
+
     try {
       const { executeBooleanOp } = await import('@features/boolean-op/model/executeBooleanOp');
       const result = await executeBooleanOp(op, selection);
-      
+
       if (result.status === 'stale') {
         setInfo('Сцена изменилась — операция отменена');
       } else if (result.status === 'error') {
@@ -31,32 +32,33 @@ export function BooleanToolbar() {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => run('union')}
-        disabled={disabled}
-        className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
-      >
-        ∪ Union
-      </button>
-      <button
-        onClick={() => run('subtract')}
-        disabled={disabled}
-        className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
-      >
-        − Subtract
-      </button>
-      <button
-        onClick={() => run('intersect')}
-        disabled={disabled}
-        className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
-      >
-        ∩ Intersect
-      </button>
-      {busy && <span className="text-xs text-muted">Вычисление…</span>}
-      {error && <span className="text-xs text-red-500">{error}</span>}
-      {info && <span className="text-xs text-blue-500">{info}</span>}
-    </div>
+    <>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => run('union')}
+          disabled={disabled}
+          className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
+        >
+          ∪ Union
+        </button>
+        <button
+          onClick={() => run('subtract')}
+          disabled={disabled}
+          className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
+        >
+          − Subtract
+        </button>
+        <button
+          onClick={() => run('intersect')}
+          disabled={disabled}
+          className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
+        >
+          ∩ Intersect
+        </button>
+        {error && <span className="text-xs text-red-500">{error}</span>}
+        {info && <span className="text-xs text-blue-500">{info}</span>}
+      </div>
+      <ProgressOverlay visible={busy} />
+    </>
   );
 }
-// Дата актуализации: 24 мая 2024 г.

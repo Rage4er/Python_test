@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { SceneNode, GeometrySpec } from '@entities/scene/types';
 import { getCustomGeometry } from './csg/geometryCache';
 
+const MAX_GEOMETRY_CACHE = 200;
 const geometryCache = new Map<string, THREE.BufferGeometry>();
 
 function hashGeometry(spec: GeometrySpec): string {
@@ -9,6 +10,18 @@ function hashGeometry(spec: GeometrySpec): string {
     return `custom:${spec.assetId || ''}`;
   }
   return `${spec.kind}:${JSON.stringify(spec.params)}`;
+}
+
+function setCache(key: string, geom: THREE.BufferGeometry): void {
+  if (geometryCache.size >= MAX_GEOMETRY_CACHE) {
+    const firstKey = geometryCache.keys().next().value;
+    if (firstKey) {
+      const oldGeom = geometryCache.get(firstKey);
+      oldGeom?.dispose();
+      geometryCache.delete(firstKey);
+    }
+  }
+  geometryCache.set(key, geom);
 }
 
 export function buildGeometry(spec: GeometrySpec): THREE.BufferGeometry {
@@ -45,7 +58,7 @@ export function buildGeometry(spec: GeometrySpec): THREE.BufferGeometry {
       geometry = new THREE.BoxGeometry(10, 10, 10);
   }
 
-  geometryCache.set(key, geometry);
+  setCache(key, geometry);
   return geometry;
 }
 
@@ -108,4 +121,3 @@ export function disposeMesh(mesh: THREE.Mesh): void {
   else mat.dispose();
   // Geometry stays in cache
 }
-// Дата актуализации: 24 мая 2024 г.

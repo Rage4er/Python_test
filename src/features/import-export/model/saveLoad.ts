@@ -80,9 +80,33 @@ export function downloadScene(): void {
 export async function uploadScene(file: File): Promise<boolean> {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
+    let data: any;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('Некорректный JSON файл');
+    }
+
+    // Валидация структуры данных
+    if (!data || typeof data !== 'object') {
+      throw new Error('Некорректный файл сцены');
+    }
+    if (typeof data.version !== 'number') {
+      throw new Error('Отсутствует версия формата сцены');
+    }
+    const SCENE_FORMAT_VERSION = 1;
+    if (data.version > SCENE_FORMAT_VERSION) {
+      throw new Error(`Версия файла ${data.version} новее поддерживаемой ${SCENE_FORMAT_VERSION}`);
+    }
+    if (!Array.isArray(data.nodes)) {
+      throw new Error('Поле nodes отсутствует или не массив');
+    }
+    if (!Array.isArray(data.rootIds)) {
+      throw new Error('Поле rootIds отсутствует или не массив');
+    }
+
     const nodes: Record<string, any> = {};
-    for (const n of data.nodes || []) {
+    for (const n of data.nodes) {
       nodes[n.id] = n;
     }
     useAppStore.setState({
@@ -93,6 +117,7 @@ export async function uploadScene(file: File): Promise<boolean> {
     return true;
   } catch (e) {
     console.error('Upload failed', e);
+    alert(e instanceof Error ? e.message : 'Ошибка загрузки сцены');
     return false;
   }
 }
