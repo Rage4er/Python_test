@@ -44,13 +44,25 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 export async function exportSTLDownload(binary = true): Promise<void> {
-  // Placeholder - full implementation requires STLExporter
-  alert('STL export coming soon');
+  const { exportSTL } = await import('./exportSTL');
+  try {
+    const blob = await exportSTL({ binary });
+    downloadBlob(blob, `model-${Date.now()}.stl`);
+  } catch (err) {
+    console.error('STL export failed:', err);
+    alert(`Ошибка экспорта STL: ${err instanceof Error ? err.message : 'unknown'}`);
+  }
 }
 
 export async function exportOBJDownload(): Promise<void> {
-  // Placeholder
-  alert('OBJ export coming soon');
+  const { exportOBJ } = await import('./exportOBJ');
+  try {
+    const blob = await exportOBJ();
+    downloadBlob(blob, `model-${Date.now()}.obj`);
+  } catch (err) {
+    console.error('OBJ export failed:', err);
+    alert(`Ошибка экспорта OBJ: ${err instanceof Error ? err.message : 'unknown'}`);
+  }
 }
 
 export function downloadScene(): void {

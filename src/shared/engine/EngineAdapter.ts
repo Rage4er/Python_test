@@ -5,6 +5,7 @@ import { MeshBVH } from 'three-mesh-bvh';
 import type { SceneNode, SceneState, Transform, PrimitiveType } from '@entities/scene/types';
 import { buildObject, applyTransform, extractTransform } from './meshFactory';
 import { diffScene } from './syncDiff';
+import { setGlobalAdapter } from './engineRef';
 
 export interface EngineCallbacks {
   onSelectionChange(ids: string[]): void;
@@ -215,13 +216,45 @@ export class EngineAdapter {
   };
 
   private onDragOver = (e: DragEvent) => {
-    if (e.dataTransfer?.types.includes('application/x-primitive')) {
+    const types = e.dataTransfer?.types;
+    if (!types) return;
+    
+    // Проверяем, есть ли файлы среди перетаскиваемых элементов
+    if (types.includes('Files')) {
+      e.preventDefault();
+      e.dataTransfer!.dropEffect = 'copy';
+      return;
+    }
+    
+    // Обработка drag примитивов из библиотеки
+    if (types.includes('application/x-primitive')) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
     }
   };
 
   private onDrop = (e: DragEvent) => {
+    const types = e.dataTransfer?.types;
+    
+    // Обработка загрузки файлов (STL/OBJ)
+    if (types?.includes('Files')) {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        const validExtensions = ['stl', 'obj'];
+        const hasValidFiles = Array.from(files).some(f => {
+          const ext = f.name.split('.').pop()?.toLowerCase();
+          return validExtensions.includes(ext || '');
+        });
+        
+        if (hasValidFiles) {
+          e.preventDefault();
+          this.handleFileDrop(files);
+          return;
+        }
+      }
+    }
+    
+    // Обработка drag примитивов из библиотеки
     const type = e.dataTransfer?.getData('application/x-primitive') as PrimitiveType | '';
     if (!type) return;
     e.preventDefault();
@@ -242,6 +275,26 @@ export class EngineAdapter {
       this.cb.onDropPrimitive(type, pos);
     }
   };
+
+  private async handleFileDrop(files: FileList): Promise<void> {
+    const validExtensions = ['stl', 'obj'];
+    const { parseFile, ImportMeshCommand } = await import(
+      '@features/import-export/model/importMesh'
+    );
+    const { useAppStore } = await import('@app/store');
+
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!validExtensions.includes(ext || '')) continue;
+      
+      try {
+        const geom = await parseFile(file);
+        useAppStore.getState().execute(new ImportMeshCommand(geom, file.name));
+      } catch (err) {
+        console.error('Импорт не удался:', err);
+      }
+    }
+  }
 
   syncScene(state: SceneState): void {
     const diff = diffScene(this.lastNodes ? { nodes: this.lastNodes } : null, state);
@@ -410,6 +463,31 @@ export class EngineAdapter {
     return obj instanceof THREE.Mesh ? obj : undefined;
   }
 
+  // ---------- Public: доступ к объектам для экспорта/импорта ----------
+
+  /** Один объект по id */
+  getObject(id: string): THREE.Object3D | undefined {
+    return this.objects.get(id);
+  }
+
+  /** Все объекты сцены */
+  getAllObjects(): THREE.Object3D[] {
+    return [...this.objects.values()];
+  }
+
+  /** Объекты верхнего уровня из переданного списка id */
+  getRootObjects(ids: string[]): THREE.Object3D[] {
+    const state = this.cb.getState();
+    const result: THREE.Object3D[] = [];
+    for (const id of ids) {
+      const node = state.nodes[id];
+      if (!node) continue;
+      const obj = this.objects.get(id);
+      if (obj) result.push(obj);
+    }
+    return result;
+  }
+
   setInteractionEnabled(enabled: boolean): void {
     this.orbit.enabled = enabled;
     this.transform.enabled = enabled;
@@ -424,6 +502,8 @@ export class EngineAdapter {
   dispose(): void {
     this.disposed = true;
     this.canvas.removeEventListener('pointerdown', this.onPointerDown);
+    this.canvas.removeEventListener('dragover', this.onDragOver);
+    this.canvas.removeEventListener('drop', this.onDrop);
     window.removeEventListener('resize', this.onResize);
     this.orbit.dispose();
     this.transform.dispose();
@@ -436,6 +516,7 @@ export class EngineAdapter {
     }
     this.objects.clear();
     this.renderer.dispose();
+    setGlobalAdapter(null);
   }
 }
 // Дата актуализации: 24 мая 2024 г.
