@@ -1,53 +1,49 @@
 ```
+# Dependencies
+node_modules/
+
 # Build artifacts
 dist/
 build/
-*.js
-*.css
+target/
 
-# Dependencies
-node_modules/
-package-lock.json
-
-# Environment
+# Development tools
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editors
+# IDE and editor files
 .vscode/
 .idea/
-
-# Logs and temp files
-*.log
-*.tmp
 *.swp
+*.swo
+*.tmp
 
-# Python
+# Logs
+*.log
+
+# Coverage reports
+coverage/
+htmlcov/
+
+# Python specific
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.mypy_cache/
 
-# Java
-*.class
-*.jar
-*.war
-*.ear
-target/
-.gradle/
+# TypeScript/JavaScript specific
+*.tsbuildinfo
+.next/
+.nuxt/
 
-# C/C++
-*.o
-*.obj
-*.a
-*.lib
-*.so
-*.dll
-*.dylib
-*.exe
+# System files
+.DS_Store
+Thumbs.db
 
-# Compression
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -70,4 +66,5 @@ target/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
 ```
