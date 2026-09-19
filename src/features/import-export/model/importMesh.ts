@@ -11,6 +11,11 @@ import { registerCustomGeometry } from '@shared/engine/csg/geometryCache';
  * Автоматически центрирует модель по bounding box.
  */
 export async function parseFile(file: File): Promise<THREE.BufferGeometry> {
+  // Валидация размера файла (макс 50MB)
+  if (file.size > 50 * 1024 * 1024) {
+    throw new Error('Файл слишком большой (макс. 50 MB). Разбейте модель на части.');
+  }
+
   const ext = file.name.split('.').pop()?.toLowerCase();
   const buffer = await file.arrayBuffer();
 

@@ -2,7 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 export default defineConfig({
-    plugins: [react()],
+    base: '/Python_test/',
+    plugins: [
+        react(),
+    ],
     resolve: {
         alias: {
             '@app': path.resolve(__dirname, 'src/app'),
@@ -15,5 +18,7 @@ export default defineConfig({
     worker: {
         format: 'es',
     },
+    optimizeDeps: {
+        include: ['three', 'three-bvh-csg', 'three-mesh-bvh'],
+    },
 });
-// Дата актуализации: 24 мая 2024 г.
