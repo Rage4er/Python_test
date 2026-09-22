@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
+  base: '/Python_test/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -17,4 +18,3 @@ export default defineConfig({
     format: 'es',
   },
 });
-// Дата актуализации: 24 мая 2024 г.
