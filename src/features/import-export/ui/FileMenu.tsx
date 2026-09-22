@@ -54,6 +54,10 @@ export function FileMenu() {
     try {
       const { exportSTL } = await import('../model/exportSTL');
       const blob = await exportSTL({ binary });
+      if (!blob) {
+        console.warn('Экспорт STL не удался: движок не готов');
+        return;
+      }
       const { downloadBlob } = await import('../model/saveLoad');
       downloadBlob(blob, `model-${Date.now()}.stl`);
     } catch (err) {
@@ -71,6 +75,10 @@ export function FileMenu() {
     try {
       const { exportOBJ } = await import('../model/exportOBJ');
       const blob = await exportOBJ();
+      if (!blob) {
+        console.warn('Экспорт OBJ не удался: движок не готов');
+        return;
+      }
       const { downloadBlob } = await import('../model/saveLoad');
       downloadBlob(blob, `model-${Date.now()}.obj`);
     } catch (err) {

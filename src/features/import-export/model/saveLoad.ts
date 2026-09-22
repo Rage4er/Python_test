@@ -47,6 +47,10 @@ export async function exportSTLDownload(binary = true): Promise<void> {
   const { exportSTL } = await import('./exportSTL');
   try {
     const blob = await exportSTL({ binary });
+    if (!blob) {
+      console.warn('Экспорт STL не удался: движок не готов');
+      return;
+    }
     downloadBlob(blob, `model-${Date.now()}.stl`);
   } catch (err) {
     console.error('STL export failed:', err);
@@ -58,6 +62,10 @@ export async function exportOBJDownload(): Promise<void> {
   const { exportOBJ } = await import('./exportOBJ');
   try {
     const blob = await exportOBJ();
+    if (!blob) {
+      console.warn('Экспорт OBJ не удался: движок не готов');
+      return;
+    }
     downloadBlob(blob, `model-${Date.now()}.obj`);
   } catch (err) {
     console.error('OBJ export failed:', err);

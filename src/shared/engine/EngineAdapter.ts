@@ -7,6 +7,8 @@ import { buildObject, applyTransform, extractTransform } from './meshFactory';
 import { diffScene } from './syncDiff';
 import { setGlobalAdapter } from './engineRef';
 
+const BVH_THRESHOLD = 500;
+
 export interface EngineCallbacks {
   onSelectionChange(ids: string[]): void;
   onTransformEnd(id: string, before: Transform, after: Transform): void;
@@ -331,7 +333,7 @@ export class EngineAdapter {
         if (obj instanceof THREE.Mesh) {
           obj.castShadow = true;
           obj.receiveShadow = true;
-          if (obj.geometry.attributes.position.count > 500) {
+          if (obj.geometry.attributes.position.count > BVH_THRESHOLD) {
             (obj.geometry as any).boundsTree = new MeshBVH(obj.geometry);
           }
         }
@@ -507,16 +509,41 @@ export class EngineAdapter {
     window.removeEventListener('resize', this.onResize);
     this.orbit.dispose();
     this.transform.dispose();
+    
+    // Рекурсивный dispose для всех ресурсов Three.js
     for (const obj of this.objects.values()) {
       this.scene.remove(obj);
-      if (obj instanceof THREE.Mesh) {
-        obj.geometry.dispose();
-        (obj.material as THREE.Material).dispose();
-      }
+      this.disposeObject(obj);
     }
     this.objects.clear();
     this.renderer.dispose();
     setGlobalAdapter(null);
+  }
+
+  private disposeObject(obj: THREE.Object3D): void {
+    if (obj instanceof THREE.Mesh) {
+      obj.geometry.dispose();
+      const material = obj.material as THREE.Material | THREE.Material[];
+      if (Array.isArray(material)) {
+        material.forEach(m => m.dispose());
+      } else {
+        material.dispose();
+      }
+    }
+    // Рекурсивно обходим детей
+    if ((obj as THREE.Group).children) {
+      (obj as THREE.Group).traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          const mat = child.material as THREE.Material | THREE.Material[];
+          if (Array.isArray(mat)) {
+            mat.forEach(m => m.dispose());
+          } else {
+            mat.dispose();
+          }
+        }
+      });
+    }
   }
 }
 // Дата актуализации: 24 мая 2024 г.

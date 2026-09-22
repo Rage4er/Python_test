@@ -11,10 +11,13 @@ interface ExportOptions {
  * Экспорт сцены (или выделенного) в OBJ.
  * Возвращает Blob, готовый к скачиванию.
  */
-export async function exportOBJ(opts: ExportOptions = {}): Promise<Blob> {
+export async function exportOBJ(opts: ExportOptions = {}): Promise<Blob | null> {
   const { selectionOnly = false } = opts;
   const adapter = getEngineAdapter();
-  if (!adapter) throw new Error('EngineAdapter не инициализирован');
+  if (!adapter) {
+    console.warn('Движок ещё не готов. Повторите попытку.');
+    return null;
+  }
 
   const state = useAppStore.getState();
   const targetIds =

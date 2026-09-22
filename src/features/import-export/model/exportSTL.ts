@@ -14,10 +14,13 @@ interface ExportOptions {
  * Экспорт сцены (или выделенного) в STL.
  * Возвращает Blob, готовый к скачиванию.
  */
-export async function exportSTL(opts: ExportOptions = {}): Promise<Blob> {
+export async function exportSTL(opts: ExportOptions = {}): Promise<Blob | null> {
   const { binary = true, applyHoles = true, selectionOnly = false } = opts;
   const adapter = getEngineAdapter();
-  if (!adapter) throw new Error('EngineAdapter не инициализирован');
+  if (!adapter) {
+    console.warn('Движок ещё не готов. Повторите попытку.');
+    return null;
+  }
 
   const state = useAppStore.getState();
   const targetIds =
