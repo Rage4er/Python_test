@@ -3,7 +3,7 @@
 **Дата:** 2024-05-24  
 **Ревьювер:** AI Senior Engineer  
 **Ветка:** main  
-**Статус:** ⚠️ Условно готов (обновлено 2026-09-23: исправлены tsc-ошибки, незакрыт retry logic — см. «Известные проблемы»)
+**Статус:** ⚠️ Условно готов (обновлено 2026-09-23: исправлены tsc-ошибки и retry logic — см. «Известные проблемы»)
 
 ---
 
@@ -137,11 +137,13 @@ declare module 'three' {
 ```
 tsconfig `include: ["src"]` захватывает `src/types/**/*.d.ts`. Неиспользуемые импорты в текущем коде отсутствуют. **Текущий результат: `tsc --noEmit` → exit 0, 0 errors.**
 
-### 2. Отсутствие retry logic при загрузке моделей — ⬜ НЕ ИСПРАВЛЕНО
+### 2. Отсутствие retry logic при загрузке моделей — ✅ ИСПРАВЛЕНО
 
-**Проблема:** нет повторных попыток сетевых запросов и fallback при недоступности CDN; Promise rejection перехватывается некорректно.
+> ✅ **Исправлено**: `fetchWithRetry` (3 попытки, backoff 1s/2s/4s, только 5xx и network errors) в `src/shared/api/client.ts`; fallback UI с кнопкой «Повторить» в `src/features/model-loading/ui/ModelLoader.tsx`. Покрыто 9 vitest-тестами (`src/shared/api/client.test.ts`).
 
-**Рекомендация:** exponential backoff + circuit breaker.
+**Проблема (было):** нет повторных попыток сетевых запросов и fallback при недоступности CDN; Promise rejection перехватывается некорректно.
+
+**Рекомендация:** circuit breaker — остаётся в backlog (retry + fallback закрыты).
 
 ---
 
