@@ -37,7 +37,7 @@
 + }
 ```
 
-**Статус:** ✅ Исправлено (commit: c97cb27)
+**Статус:** ✅ Исправлено (commit: c97cb27) · ✅ Покрыто тестами (commit: 85b2b29, `src/features/import-export/model/exportNullAdapter.test.ts`)
 
 ---
 
@@ -49,7 +49,7 @@
 - **Проблема:** При удалении объектов или очистке сцены не вызывается `.dispose()` для `THREE.Geometry`, `THREE.Material`, `THREE.Texture`.
 - **Риск:** Утечка видеопамяти при долгой работе (особенно после импорта больших STL).
 - **Рекомендация:** Добавить рекурсивный обход с `dispose()` в метод `clearScene()`.
-- **Статус:** ✅ Исправлено (commit: c97cb27) — добавлен `disposeObject()` с рекурсивным traverse().
+- **Статус:** ✅ Исправлено (commit: c97cb27) — добавлен `disposeObject()` с рекурсивным traverse(). · ✅ Покрыто тестами (commit: 85b2b29, `src/shared/engine/disposeObject.test.ts`)
 
 ### 2. Валидация размера файла только на клиенте
 
@@ -63,7 +63,7 @@
 - **Файл:** `src/shared/engine/meshFactory.ts`
 - **Проблема:** Порог `500` вершин для BVH задан жестко.
 - **Рекомендация:** Вынести в константу `BVH_THRESHOLD = 500` в конфиг.
-- **Статус:** ✅ Исправлено (commit: c97cb27) — добавлена константа `BVH_THRESHOLD` в `EngineAdapter.ts`.
+- **Статус:** ✅ Исправлено (commit: c97cb27) — добавлена константа `BVH_THRESHOLD` в `EngineAdapter.ts`. · ✅ Покрыто тестами (commit: 85b2b29, `src/shared/engine/bvhThreshold.test.ts`)
 
 ---
 
