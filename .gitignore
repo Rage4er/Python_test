@@ -1,48 +1,21 @@
-```
-# Build artifacts
-dist/
-*.tsbuildinfo
-
 # Dependencies
 node_modules/
 
-# Logs and temp files
-*.log
-*.tmp
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Compiled files
-*.o
-*.obj
-*.so
-*.a
-*.dll
-*.exe
+# Build output
+dist/
 
 # Coverage
 coverage/
-htmlcov/
-.coverage
 
-# Testing
-.mypy_cache/
-.pytest_cache/
+# TypeScript build info
+*.tsbuildinfo
 
-# System
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
+
+# OS
 .DS_Store
-Thumbs.db
-```
