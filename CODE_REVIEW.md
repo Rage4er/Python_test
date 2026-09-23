@@ -3,7 +3,7 @@
 **Дата:** 2024-05-24  
 **Ревьювер:** AI Senior Engineer  
 **Ветка:** main  
-**Статус:** ✅ Готово к продакшену с рекомендациями
+**Статус:** ⚠️ Условно готов (обновлено 2026-09-23: исправлены tsc-ошибки, незакрыт retry logic — см. «Известные проблемы»)
 
 ---
 
@@ -16,7 +16,7 @@
 | **Строк удалено** | -756 |
 | **Критичных проблем** | 1 |
 | **Предупреждений** | 3 |
-| **Общая оценка** | ✅ 7.5/10 |
+| **Общая оценка** | ⚠️ 6.5/10 |
 
 ---
 
@@ -114,6 +114,34 @@
 | 🟡 Medium | Написать 5 unit-тестов для команд | 2 часа |
 | 🟢 Low | Реализовать контекстное меню | 3 часа |
 | 🟢 Low | Refactor: избавиться от глобала через Context API | 4 часа |
+
+---
+
+## 🐞 Известные проблемы
+
+### 1. Ошибки типизации `boundsTree` в three.js — ✅ ИСПРАВЛЕНО (commit: 4649a1f7)
+
+**Симптом (до исправления):** `npx tsc --noEmit` падал с 10 ошибками TS2339/TS6133:
+- `Property 'boundsTree' does not exist on type 'BufferGeometry<NormalBufferAttributes>'` — в `exportSTL.ts`, `raycastUtils.ts`, `EngineAdapter.ts`;
+- неиспользуемые `importStyles` (`App.tsx`) и `localHash` (`conflictDetection.ts`).
+
+**Исправление:** добавлен `src/types/three-mesh-bvh.d.ts` — module augmentation для `'three'`:
+```typescript
+declare module 'three' {
+  interface BufferGeometry {
+    boundsTree?: import('three-mesh-bvh').MeshBVH;
+    disposeBoundsTree?: () => void;
+    computeBoundsTree?: (options?: any) => void;
+  }
+}
+```
+tsconfig `include: ["src"]` захватывает `src/types/**/*.d.ts`. Неиспользуемые импорты в текущем коде отсутствуют. **Текущий результат: `tsc --noEmit` → exit 0, 0 errors.**
+
+### 2. Отсутствие retry logic при загрузке моделей — ⬜ НЕ ИСПРАВЛЕНО
+
+**Проблема:** нет повторных попыток сетевых запросов и fallback при недоступности CDN; Promise rejection перехватывается некорректно.
+
+**Рекомендация:** exponential backoff + circuit breaker.
 
 ---
 
