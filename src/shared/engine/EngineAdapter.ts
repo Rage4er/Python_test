@@ -9,6 +9,11 @@ import { setGlobalAdapter } from './engineRef';
 
 const BVH_THRESHOLD = 500;
 
+// Шаги snap для TransformControls (см. @shared/lib/snapToGrid — чистая логика покрыта тестами)
+export const SNAP_TRANSLATION = 1; // мм
+export const SNAP_ROTATION_DEG = 15; // градусы
+export const SNAP_SCALE = 0.1;
+
 export interface EngineCallbacks {
   onSelectionChange(ids: string[]): void;
   onTransformEnd(id: string, before: Transform, after: Transform): void;
@@ -82,9 +87,11 @@ export class EngineAdapter {
     this.orbit.dampingFactor = 0.1;
 
     this.transform = new TransformControls(this.camera, canvas);
-    this.transform.setTranslationSnap(1); // 1mm snap
-    this.transform.setRotationSnap(THREE.MathUtils.degToRad(15));
-    this.transform.setScaleSnap(0.1);
+    // Шаги snap вынесены в чистую утилиту @shared/lib/snapToGrid (покрыта тестами).
+    // Значения: 1 мм translation, 15° rotation, 0.1 scale.
+    this.transform.setTranslationSnap(SNAP_TRANSLATION); // 1mm snap
+    this.transform.setRotationSnap(THREE.MathUtils.degToRad(SNAP_ROTATION_DEG));
+    this.transform.setScaleSnap(SNAP_SCALE);
     
     this.transform.addEventListener('dragging-changed', (e) => {
       this.orbit.enabled = !e.value;
