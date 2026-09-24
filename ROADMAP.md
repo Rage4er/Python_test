@@ -66,7 +66,7 @@
 
 ### Улучшение экспорта/импорта
 - [ ] Экспорт GLTF/GLB (PBR материалы, текстуры)
-- [ ] Импорт GLTF/GLTF
+- [ ] Импорт GLTF/GLB
 - [ ] Экспорт 3MF (формат 3D-печати)
 - [ ] Поддержка текстур при импорте OBJ+MTL
 
@@ -98,7 +98,8 @@
 - [x] ✅ CSG boolean operations — worker+command покрыты (commit b466f38d)
 - [x] ✅ Command Pattern — history + все команды ≥85% branches (commit 1adb348f)
 - [x] ✅ Snap-to-grid — 100% statements (snapToGrid.ts, commit 75cbadbd)
-- [x] ✅ Сериализация сцены — saveLoad 77%, exportOBJ 98%, round-trip покрыт (commit 75cbadbd)
+- [~] ⏳ Сериализация сцены — saveLoad 77%, exportOBJ 98%, round-trip покрыт (commit 75cbadbd)
+- [ ] ⬜ saveLoad → 90%+ (осталось: ветки ошибок, невалидный JSON, экспорт STL 66%)
 
 ---
 
@@ -143,11 +144,12 @@
 
 | Метрика | Текущее значение | Цель v2.0 |
 |---------|------------------|-----------|
-| Размер бандла | ~962 KB raw / ~247 KB gzip (main + worker) | <200 KB gzip ✅ (цель <500 KB gzip достигнута в v1.1) |
+| Размер бандла (raw/gzip) | 962 KB raw / 247 KB gzip (main + worker) | <200 KB gzip |
+| Размер бандла — достигнуто в v1.1 | цель <500 KB gzip ✅ | — |
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 7.56% statements / 39.72% branches | >80% statements |
+| Охват тестами | 39.87% statements / 82.87% branches (104 теста, vitest run --coverage) | >80% statements |
 
 ---
 
@@ -162,5 +164,5 @@
 
 ---
 
-**Последнее обновление:** 24 сентября 2026 г.  
+**Последнее обновление:** 25 сентября 2026 г.  
 **Статус:** Активно разрабатывается 🚀

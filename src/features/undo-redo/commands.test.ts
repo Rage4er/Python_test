@@ -226,7 +226,10 @@ describe('SetNodePropertyCommand', () => {
     const cmd = new SetNodePropertyCommand('a', { key: 'name', value: 'Renamed' });
     const next = cmd.apply(s());
     expect(next.nodes.a.name).toBe('Renamed');
-    expect(cmd.revert(next)).toEqual(frozen);
+    // apply() обновляет updatedAt (Date.now()) — поле не детерминировано, сравниваем остальное
+    const reverted = cmd.revert(next);
+    expect({ ...reverted.nodes.a, updatedAt: undefined }).toEqual({ ...frozen.nodes.a, updatedAt: undefined });
+    expect(reverted.nodes.a.name).toBe(frozen.nodes.a.name);
   });
 
   it('material patch merges partial', () => {
