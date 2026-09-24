@@ -95,8 +95,8 @@
 - [x] ✅ engineRef.ts — 100%
 - [x] ✅ disposeObject — покрыт
 - [x] ✅ BVH threshold — покрыт
-- [ ] ⬜ CSG boolean operations — 0%
-- [ ] ⬜ Command Pattern — 0%
+- [x] ✅ CSG boolean operations — worker+command покрыты (commit b466f38d)
+- [x] ✅ Command Pattern — history + все команды ≥85% branches (commit 1adb348f)
 - [x] ✅ Snap-to-grid — 100% statements (snapToGrid.ts, commit 75cbadbd)
 - [x] ✅ Сериализация сцены — saveLoad 77%, exportOBJ 98%, round-trip покрыт (commit 75cbadbd)
 
