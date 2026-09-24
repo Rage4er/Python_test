@@ -97,8 +97,8 @@
 - [x] ✅ BVH threshold — покрыт
 - [ ] ⬜ CSG boolean operations — 0%
 - [ ] ⬜ Command Pattern — 0%
-- [ ] ⬜ Snap-to-grid — 0%
-- [ ] ⬜ Сериализация сцены — 0%
+- [x] ✅ Snap-to-grid — 100% statements (snapToGrid.ts, commit 75cbadbd)
+- [x] ✅ Сериализация сцены — saveLoad 77%, exportOBJ 98%, round-trip покрыт (commit 75cbadbd)
 
 ---
 
