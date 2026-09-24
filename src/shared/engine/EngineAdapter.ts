@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import { MeshBVH } from 'three-mesh-bvh';
+
 import type { SceneNode, SceneState, Transform, PrimitiveType } from '@entities/scene/types';
 import { buildObject, applyTransform, extractTransform } from './meshFactory';
 import { diffScene } from './syncDiff';
@@ -298,7 +298,7 @@ export class EngineAdapter {
     }
   }
 
-  syncScene(state: SceneState): void {
+  async syncScene(state: SceneState): Promise<void> {
     const diff = diffScene(this.lastNodes ? { nodes: this.lastNodes } : null, state);
 
     // Удаление (дети перед родителями)
@@ -334,6 +334,9 @@ export class EngineAdapter {
           obj.castShadow = true;
           obj.receiveShadow = true;
           if (obj.geometry.attributes.position.count > BVH_THRESHOLD) {
+            // ленивая загрузка three-mesh-bvh (~120 kB raw): BVH нужен только
+            // для high-poly мешей, не тащим его в стартовый чанк
+            const { MeshBVH } = await import('three-mesh-bvh');
             (obj.geometry as any).boundsTree = new MeshBVH(obj.geometry);
           }
         }
