@@ -98,8 +98,7 @@
 - [x] ✅ CSG boolean operations — worker+command покрыты (commit b466f38d)
 - [x] ✅ Command Pattern — history + все команды ≥85% branches (commit 1adb348f)
 - [x] ✅ Snap-to-grid — 100% statements (snapToGrid.ts, commit 75cbadbd)
-- [~] ⏳ Сериализация сцены — saveLoad 77%, exportOBJ 98%, round-trip покрыт (commit 75cbadbd)
-- [ ] ⬜ saveLoad → 90%+ (осталось: ветки ошибок, невалидный JSON, экспорт STL 66%)
+- [x] ✅ Сериализация сцены — saveLoad 98.48% / 92.68% branches (commit 03a690f2)
 
 ---
 
@@ -149,7 +148,7 @@
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 39.87% statements / 82.87% branches (104 теста, vitest run --coverage) | >80% statements |
+| Охват тестами | 41.03% statements / 85.43% branches (114 тестов, vitest run --coverage) | >80% statements |
 
 ---
 
