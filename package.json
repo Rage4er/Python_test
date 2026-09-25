@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
-    "@react-three/test-renderer": "^9.1.1",
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.7",
     "@types/node": "^20.12.12",
