@@ -99,6 +99,14 @@
 - [x] ✅ Command Pattern — history + все команды ≥85% branches (commit 1adb348f)
 - [x] ✅ Snap-to-grid — 100% statements (snapToGrid.ts, commit 75cbadbd)
 - [x] ✅ Сериализация сцены — saveLoad 98.48% / 92.68% branches (commit 03a690f2)
+- [x] ✅ Outliner — 100% stmts (commit f14b469)
+- [x] ✅ Inspector — 100% stmts (commit 0c7b483)
+- [x] ✅ ShapeLibrary — 100% stmts (commit 7242970)
+- [x] ✅ ProgressOverlay — 100% stmts (commit 48fe369)
+- [x] ✅ ContextMenu — 100% stmts (commit e82a009)
+- [ ] ⬜ BooleanToolbar
+- [ ] ⬜ FileMenu
+- [ ] ⬜ ModelLoader
 
 ---
 
@@ -148,7 +156,7 @@
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 41.03% statements / 85.43% branches (114 тестов, vitest run --coverage) | >80% statements |
+| Охват тестами | 50.4% statements / 88.8% branches (140 тестов) | >80% statements |
 
 ---
 
@@ -163,5 +171,5 @@
 
 ---
 
-**Последнее обновление:** 25 сентября 2026 г.  
+**Последнее обновление:** 26 сентября 2026 г.  
 **Статус:** Активно разрабатывается 🚀

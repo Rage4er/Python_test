@@ -30,7 +30,7 @@ jobs:
         run: |
           COV=$(node -p "require('./coverage/coverage-summary.json').total.statements.pct")
           echo "Statements coverage: $COV%"
-          if (( $(echo "$COV < 40" | bc -l) )); then
-            echo "::error::Coverage $COV% below 40% threshold"
+          if (( $(echo "$COV < 48" | bc -l) )); then
+            echo "::error::Coverage $COV% below 48% threshold"
             exit 1
           fi
