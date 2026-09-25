@@ -104,7 +104,7 @@
 - [x] ✅ ShapeLibrary — 100% stmts (commit 7242970)
 - [x] ✅ ProgressOverlay — 100% stmts (commit 48fe369)
 - [x] ✅ ContextMenu — 100% stmts (commit e82a009)
-- [ ] ⬜ BooleanToolbar
+- [x] ✅ BooleanToolbar — 100% stmts (commit f4e0bb4)
 - [ ] ⬜ FileMenu
 - [ ] ⬜ ModelLoader
 
