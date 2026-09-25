@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import path from 'node:path';
+import path from 'path';
 
 export default defineConfig({
   resolve: {
@@ -7,12 +7,21 @@ export default defineConfig({
       '@app': path.resolve(__dirname, 'src/app'),
       '@entities': path.resolve(__dirname, 'src/entities'),
       '@features': path.resolve(__dirname, 'src/features'),
-      '@widgets': path.resolve(__dirname, 'src/widgets'),
       '@shared': path.resolve(__dirname, 'src/shared'),
+      '@widgets': path.resolve(__dirname, 'src/widgets'),
+      '@pages': path.resolve(__dirname, 'src/pages'),
     },
   },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    globals: true,
+    isolate: true,
+    pool: 'forks',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.*', 'src/**/*.d.ts'],
+    },
   },
 });
