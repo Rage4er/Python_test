@@ -1,9 +1,25 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
-import { saveToLocal, loadFromLocal, downloadScene, uploadScene } from './saveLoad';
+import {
+  saveToLocal,
+  loadFromLocal,
+  downloadScene,
+  uploadScene,
+  downloadBlob,
+  exportSTLDownload,
+  exportOBJDownload,
+} from './saveLoad';
 import { useAppStore } from '@app/store';
 import { setGlobalAdapter } from '@shared/engine/engineRef';
 import type { SceneNode } from '@entities/scene/types';
+
+// ВАЖНО: не использовать vi.resetModules() в этом файле.
+// resetModules создаёт ВТОРОЙ экземпляр './exportSTL'/'./exportOBJ' (со своим
+// копированием three.js), из-за чего instanceof/структурные проверки Blob и
+// меши из первого экземпляра перестают совпадать — интеграционные тесты ниже
+// начинают падать с "expected null not to be null". Error-сценарии обёрток
+// покрыты без resetModules: мок ставится на @shared/engine/engineRef через
+// vi.doMock + fresh-import самого saveLoad (см. helpers ниже).
 
 // localStorage mock для jsdom (в vitest environment jsdom есть storage, но очистим явно)
 function makeNode(overrides: Partial<SceneNode> = {}): SceneNode {
@@ -71,6 +87,164 @@ describe('saveToLocal / loadFromLocal — round-trip через localStorage', (
     });
     expect(() => saveToLocal()).not.toThrow();
     expect(spy).toHaveBeenCalled();
+  });
+
+  test('loadFromLocal с неполным JSON (без nodes/rootIds/selection) → true + дефолты', () => {
+    localStorage.setItem('tinkercad-clone:scene', JSON.stringify({ savedAt: 1 }));
+    setState({ a: makeNode({ id: 'a' }) }, ['a'], ['a']); // мусор до загрузки
+
+    expect(loadFromLocal()).toBe(true);
+    const s = useAppStore.getState();
+    expect(s.nodes).toEqual({});
+    expect(s.rootIds).toEqual([]);
+    expect(s.selection).toEqual([]);
+  });
+});
+
+describe('downloadBlob — скачивание через якорь', () => {
+  function setupDomSpy() {
+    const clickSpy = vi.fn();
+    const createObjectURL = vi.fn(() => 'blob:test-url');
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal('URL', { ...URL, createObjectURL, revokeObjectURL });
+    vi.stubGlobal('document', {
+      ...document,
+      createElement: () => ({ href: '', download: '', click: clickSpy, style: {} }),
+    });
+    return { clickSpy, createObjectURL, revokeObjectURL };
+  }
+
+  test('создаёт URL, проставляет filename, кликает, откладывает revoke', () => {
+    vi.useFakeTimers();
+    const { clickSpy, createObjectURL, revokeObjectURL } = setupDomSpy();
+
+    downloadBlob(new Blob(['x'], { type: 'text/plain' }), 'file.txt');
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).not.toHaveBeenCalled(); // отложен на 1000 мс
+    vi.advanceTimersByTime(1000);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-url');
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('exportSTLDownload / exportOBJDownload — обёртки скачивания', () => {
+  let clickSpy: ReturnType<typeof vi.fn>;
+  const fakeMeshes: Record<string, THREE.Mesh> = {};
+
+  beforeEach(() => {
+    // нативный Blob нужен экспортёру (new Blob внутри exportSTL/exportOBJ)
+    vi.unstubAllGlobals();
+    clickSpy = vi.fn();
+    vi.stubGlobal('URL', { ...URL, createObjectURL: vi.fn(() => 'blob:x'), revokeObjectURL: vi.fn() });
+    vi.stubGlobal('document', {
+      ...document,
+      createElement: () => ({ href: '', download: '', click: clickSpy, style: {} }),
+    });
+
+    const m = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2));
+    m.name = 'a';
+    m.updateMatrixWorld(true);
+    fakeMeshes.a = m;
+    setGlobalAdapter({
+      getObject: (id: string) => fakeMeshes[id],
+      getAllObjects: () => Object.values(fakeMeshes),
+      getRootObjects: (ids: string[]) => ids.map((i) => fakeMeshes[i]).filter(Boolean),
+      getMesh: (id: string) => fakeMeshes[id],
+    });
+  });
+
+  test('STL: экспорт вернул null (движок не готов) → warn, без скачивания', async () => {
+    setGlobalAdapter(null);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await exportSTLDownload();
+    expect(warnSpy).toHaveBeenCalled();
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  test('STL: успешный экспорт → скачивание файла .stl', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    await exportSTLDownload(true);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  // Error-сценарии обёрток. Мок ставим на сами экспортёры и вызываем
+  // ФРЕШ-копию saveLoad (await import) — БЕЗ vi.resetModules(), чтобы не
+  // создавать второй экземпляр модулей exportSTL/exportOBJ (это ломает
+  // instanceof-проверки в интеграционных тестах ниже).
+  async function freshSaveLoadWithFailingSTL(error: unknown) {
+    vi.doMock('./exportSTL', () => ({
+      exportSTL: async () => {
+        throw error;
+      },
+    }));
+    return import('./saveLoad');
+  }
+  async function freshSaveLoadWithFailingOBJ(error: unknown) {
+    vi.doMock('./exportOBJ', () => ({
+      exportOBJ: async () => {
+        throw error;
+      },
+    }));
+    return import('./saveLoad');
+  }
+
+  afterEach(() => {
+    vi.doUnmock('./exportSTL');
+    vi.doUnmock('./exportOBJ');
+  });
+
+  test('STL: движок бросает Error → alert с сообщением, без throw', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const mod = await freshSaveLoadWithFailingSTL(new Error('boom-stl'));
+    await mod.exportSTLDownload();
+    expect(alertSpy).toHaveBeenCalledWith('Ошибка экспорта STL: boom-stl');
+    expect(errSpy).toHaveBeenCalled();
+  });
+
+  test('STL: брошен не-Error → alert c unknown', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const mod = await freshSaveLoadWithFailingSTL('string-fail');
+    await mod.exportSTLDownload();
+    expect(alertSpy).toHaveBeenCalledWith('Ошибка экспорта STL: unknown');
+  });
+
+  test('OBJ: экспорт вернул null → warn, без скачивания', async () => {
+    setGlobalAdapter(null);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await exportOBJDownload();
+    expect(warnSpy).toHaveBeenCalled();
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  test('OBJ: успешный экспорт → скачивание файла .obj', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    await exportOBJDownload();
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('OBJ: движок бросает Error → alert с сообщением', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const mod = await freshSaveLoadWithFailingOBJ(new Error('boom-obj'));
+    await mod.exportOBJDownload();
+    expect(alertSpy).toHaveBeenCalledWith('Ошибка экспорта OBJ: boom-obj');
+  });
+
+  test('OBJ: брошен не-Error → alert c unknown', async () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const mod = await freshSaveLoadWithFailingOBJ({ weird: true });
+    await mod.exportOBJDownload();
+    expect(alertSpy).toHaveBeenCalledWith('Ошибка экспорта OBJ: unknown');
   });
 });
 
@@ -168,6 +342,12 @@ describe('uploadScene — десериализация и валидация', (
 });
 
 describe('экспорт STL/OBJ против fake-adapter (интеграция сериализации геометрий)', () => {
+  // Восстанавливаем нативные Blob/URL/document после тестов-обёрток,
+  // которые их стабили (иначе exportSTL не сможет создать настоящий Blob).
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   // jsdom Blob без .arrayBuffer()/.text() — читаем через FileReader
   function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
