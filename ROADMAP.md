@@ -105,8 +105,8 @@
 - [x] ✅ ProgressOverlay — 100% stmts (commit 48fe369)
 - [x] ✅ ContextMenu — 100% stmts (commit e82a009)
 - [x] ✅ BooleanToolbar — 100% stmts (commit f4e0bb4)
-- [ ] ⬜ FileMenu
-- [ ] ⬜ ModelLoader
+- [x] ✅ FileMenu — 97.26% stmts (commit e966cef)
+- [x] ✅ ModelLoader — 100% stmts (commit b15e16b)
 
 ---
 
@@ -156,7 +156,7 @@
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 50.4% statements / 88.8% branches (140 тестов) | >80% statements |
+| Охват тестами | 59.62% statements / 89.28% branches (173 теста) | >80% statements |
 
 ---
 
@@ -171,5 +171,5 @@
 
 ---
 
-**Последнее обновление:** 26 сентября 2026 г.  
+**Последнее обновление:** 27 сентября 2026 г.  
 **Статус:** Активно разрабатывается 🚀
