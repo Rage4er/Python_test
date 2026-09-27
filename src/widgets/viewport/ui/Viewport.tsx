@@ -51,6 +51,15 @@ export function Viewport() {
     adapterRef.current = adapter;
     setGlobalAdapter(adapter);
 
+    // Экспозиция сцены для E2E-тестов (Playwright читает состояние через page.evaluate).
+    // Сцена создаётся в Viewport/EngineAdapter, не в App.tsx.
+    if (import.meta.env.DEV || import.meta.env.MODE === 'test') {
+      const w = window as unknown as Record<string, unknown>;
+      w.__THREE_SCENE__ = adapter.scene;
+      w.__THREE_CAMERA__ = adapter.camera;
+      w.__THREE_RENDERER__ = adapter.renderer;
+    }
+
     // Initial sync
     const initial = store.getState();
     adapter.syncScene(initial);
