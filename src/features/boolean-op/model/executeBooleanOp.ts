@@ -2,15 +2,8 @@ import * as THREE from 'three';
 import { useAppStore } from '@app/store';
 import { csgClient } from '@shared/engine/csg/csgClient';
 import { serializeMesh, deserializeGeometry } from '@shared/engine/csg/serialize';
+import { getEngineAdapter } from '@shared/engine/engineRef';
 import { BooleanOpCommand } from './BooleanOpCommand';
-
-interface EngineAdapterRef {
-  getMesh(id: string): THREE.Mesh | undefined;
-}
-
-let _adapter: EngineAdapterRef | null = null;
-export function setEngineAdapter(a: EngineAdapterRef | null): void { _adapter = a; }
-export function getEngineAdapter(): EngineAdapterRef | null { return _adapter; }
 
 export interface ExecuteBooleanResult {
   status: 'applied' | 'stale' | 'error';
@@ -22,7 +15,7 @@ export async function executeBooleanOp(
   nodeIds: string[]
 ): Promise<ExecuteBooleanResult> {
   const store = useAppStore.getState();
-  const adapter = _adapter;
+  const adapter = getEngineAdapter();
 
   if (!adapter) return { status: 'error', reason: 'EngineAdapter not initialized' };
   if (nodeIds.length < 2) return { status: 'error', reason: 'Выберите минимум 2 объекта' };

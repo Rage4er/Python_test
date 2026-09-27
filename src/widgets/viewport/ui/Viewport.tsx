@@ -1,15 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { EngineAdapter } from '@shared/engine/EngineAdapter';
+import { setGlobalAdapter } from '@shared/engine/engineRef';
 import { useAppStore } from '@app/store';
 
-// Глобальная установка адаптера для доступа из других модулей (CSG, Export)
-let globalAdapter: any = null;
-export function setGlobalAdapter(adapter: any) {
-  globalAdapter = adapter;
-}
-export function getGlobalAdapter() {
-  return globalAdapter;
-}
+// Реестр адаптера — единый на проект: @shared/engine/engineRef
+// (setGlobalAdapter/getEngineAdapter). Ранее здесь был дублирующий локальный
+// реестр, из-за чего CSG (executeBooleanOp) никогда не видел адаптер.
 
 export function Viewport() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

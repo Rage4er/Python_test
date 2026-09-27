@@ -12,8 +12,6 @@ import * as booleanOpModule from '@features/boolean-op/model/executeBooleanOp';
 
 vi.mock('@features/boolean-op/model/executeBooleanOp', () => ({
   executeBooleanOp: vi.fn(),
-  setEngineAdapter: vi.fn(),
-  getEngineAdapter: vi.fn(() => null),
 }));
 
 const mockedExecute = vi.mocked(booleanOpModule.executeBooleanOp);

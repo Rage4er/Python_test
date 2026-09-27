@@ -11,7 +11,8 @@ vi.mock('@shared/engine/csg/csgClient', () => ({
 
 import { useAppStore } from '@app/store';
 import { csgClient } from '@shared/engine/csg/csgClient';
-import { executeBooleanOp, setEngineAdapter } from './executeBooleanOp';
+import { executeBooleanOp } from './executeBooleanOp';
+import { setGlobalAdapter } from '@shared/engine/engineRef';
 
 const brush = () => ({
   positions: new Float32Array([0, 0, 0, 1, 0, 0, 1, 1, 0]),
@@ -26,7 +27,7 @@ function seedScene() {
   const meshA = new THREE.Mesh(geomA);
   const meshB = new THREE.Mesh(geomB);
   const adapter = { getMesh: (id: string) => (id === 'a' ? meshA : id === 'b' ? meshB : undefined) };
-  setEngineAdapter(adapter as never);
+  setGlobalAdapter(adapter as never);
 
   const t = Date.now();
   const node = (id: string) => ({
@@ -52,7 +53,7 @@ beforeEach(() => {
 
 describe('executeBooleanOp — guard-ошибки (без обращения к worker)', () => {
   it('без адаптера → error "EngineAdapter not initialized"', async () => {
-    setEngineAdapter(null);
+    setGlobalAdapter(null);
     const r = await executeBooleanOp('union', ['a', 'b']);
     expect(r.status).toBe('error');
     expect(csgClient.evaluate).not.toHaveBeenCalled();
@@ -75,7 +76,7 @@ describe('executeBooleanOp — guard-ошибки (без обращения к 
   it('меньше двух мешей в адаптере → error', async () => {
     seedScene();
     // узлы a и b есть в стейте, но mesh для b отсутствует в адаптере → filter даёт 1 brush
-    setEngineAdapter({ getMesh: (id: string) => (id === 'a' ? new THREE.Mesh(new THREE.BoxGeometry()) : undefined) } as never);
+    setGlobalAdapter({ getMesh: (id: string) => (id === 'a' ? new THREE.Mesh(new THREE.BoxGeometry()) : undefined) } as never);
     const r = await executeBooleanOp('union', ['a', 'b']);
     expect(r.status).toBe('error');
     expect(r.reason).toMatch(/двух мешей/);
