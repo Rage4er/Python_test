@@ -108,6 +108,13 @@
 - [x] ✅ FileMenu — 97.26% stmts (commit e966cef)
 - [x] ✅ ModelLoader — 100% stmts (commit b15e16b)
 
+### Не покрыто юнит-тестами (требует E2E)
+- [ ] Viewport.tsx — three.js / WebGL / OrbitControls
+- [ ] App.tsx — композиция приложения
+
+Обоснование: юнит-тесты с моками three.js дают искусственное покрытие;
+правильно покрывать через Playwright/Cypress.
+
 ---
 
 ## 📅 Планируется (v2.0 — 2027)
@@ -156,7 +163,7 @@
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 59.62% statements / 89.28% branches (173 теста) | >80% statements |
+| Охват тестами | 59.62% statements / 89.28% branches (173 теста) | >80% statements (без Viewport/App) |
 
 ---
 
