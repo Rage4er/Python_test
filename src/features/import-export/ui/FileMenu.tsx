@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useAppStore } from '@app/store';
+import { Icon } from '@shared/ui/Icon';
 
 export function FileMenu() {
   const [open, setOpen] = useState(false);
@@ -111,7 +112,9 @@ export function FileMenu() {
         disabled={busy}
         className="px-3 py-1 border border-border rounded hover:bg-bg disabled:opacity-40"
       >
-        Файл {busy ? '…' : '▾'}
+        Файл{' '}
+        {/* был '…' → Ellipsis, был '▾' → ChevronDown */}
+        {busy ? <Icon name="ellipsis" size={16} /> : <Icon name="chevronDown" size={16} />}
       </button>
 
       {open && (

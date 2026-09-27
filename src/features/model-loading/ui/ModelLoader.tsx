@@ -5,6 +5,7 @@
  */
 import { useCallback, useState } from 'react';
 import { fetchWithRetry } from '@shared/api/client';
+import { Icon } from '@shared/ui/Icon';
 
 export type LoadState =
   | { status: 'idle' }
@@ -46,7 +47,11 @@ export function ModelLoader({ url, onLoaded }: ModelLoaderProps) {
   if (state.status === 'error') {
     return (
       <div role="alert" className="model-loader model-loader--error">
-        <p>⚠️ Не удалось загрузить модель после {MAX_ATTEMPTS} попыток.</p>
+        <p className="inline-flex items-center gap-1">
+          {/* был ⚠️ → AlertTriangle */}
+          <Icon name="warning" size={16} />
+          Не удалось загрузить модель после {MAX_ATTEMPTS} попыток.
+        </p>
         <p className="model-loader__details">{state.message}</p>
         <button onClick={load}>Повторить</button>
       </div>

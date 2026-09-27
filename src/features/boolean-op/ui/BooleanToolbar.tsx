@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '@app/store';
+import { Icon } from '@shared/ui/Icon';
 import { ProgressOverlay } from './ProgressOverlay';
 
 export function BooleanToolbar() {
@@ -39,21 +40,27 @@ export function BooleanToolbar() {
           disabled={disabled}
           className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
         >
-          ∪ Union
+          <span className="inline-flex items-center gap-1">
+            <Icon name="union" size={14} />Union
+          </span>{/* был ∪ → Combine */}
         </button>
         <button
           onClick={() => run('subtract')}
           disabled={disabled}
           className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
         >
-          − Subtract
+          <span className="inline-flex items-center gap-1">
+            <Icon name="subtract" size={14} />Subtract
+          </span>{/* был − → Minus */}
         </button>
         <button
           onClick={() => run('intersect')}
           disabled={disabled}
           className="px-3 py-1 border border-border rounded disabled:opacity-40 text-sm"
         >
-          ∩ Intersect
+          <span className="inline-flex items-center gap-1">
+            <Icon name="intersect" size={14} />Intersect
+          </span>{/* был ∩ → Venn */}
         </button>
         {error && <span className="text-xs text-red-500">{error}</span>}
         {info && <span className="text-xs text-blue-500">{info}</span>}

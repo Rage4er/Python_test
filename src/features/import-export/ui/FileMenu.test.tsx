@@ -66,9 +66,9 @@ beforeEach(() => {
 });
 
 describe('FileMenu — рендер и dropdown', () => {
-  it('закрыт по умолчанию: пунктов не видно, кнопка «Файл ▾» есть', () => {
+  it('закрыт по умолчанию: пунктов не видно, кнопка «Файл» есть (иконка ChevronDown вместо ▾)', () => {
     render(<FileMenu />);
-    expect(screen.getByRole('button', { name: /Файл ▾/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Файл/ })).toBeTruthy();
     for (const label of ITEMS) {
       expect(screen.queryByRole('button', { name: label })).toBeNull();
     }

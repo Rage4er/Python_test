@@ -6,6 +6,7 @@ import { Inspector } from '@widgets/inspector/ui/Inspector';
 import { Outliner } from '@widgets/outliner/ui/Outliner';
 import { Viewport } from '@widgets/viewport/ui/Viewport';
 import { ContextMenu } from '@features/context-menu/ui/ContextMenu';
+import { Icon } from '@shared/ui/Icon';
 import { useEffect } from 'react';
 
 export function App() {
@@ -48,10 +49,15 @@ export function App() {
       <header className="h-12 border-b border-border bg-panel flex items-center gap-2 px-4 shrink-0">
         <FileMenu />
         <span className="font-semibold mr-4">Tinkercad Clone</span>
-        <button onClick={undo} className="px-3 py-1 border border-border rounded text-sm" title="Undo (Ctrl+Z)">↶</button>
-        <button onClick={redo} className="px-3 py-1 border border-border rounded text-sm" title="Redo (Ctrl+Y)">↷</button>
-        <button onClick={toggleTheme} className="px-3 py-1 border border-border rounded text-sm">
-          {theme === 'light' ? '🌙' : '☀️'}
+        <button onClick={undo} className="px-3 py-1 border border-border rounded text-sm" title="Undo (Ctrl+Z)">
+          <Icon name="undo" size={16} />{/* был ↶ → Undo2 */}
+        </button>
+        <button onClick={redo} className="px-3 py-1 border border-border rounded text-sm" title="Redo (Ctrl+Y)">
+          <Icon name="redo" size={16} />{/* был ↷ → Redo2 */}
+        </button>
+        <button onClick={toggleTheme} className="px-3 py-1 border border-border rounded text-sm" title="Переключить тему">
+          {/* был 🌙 → Moon, был ☀️ → Sun */}
+          <Icon name={theme === 'light' ? 'themeLight' : 'themeDark'} size={16} />
         </button>
         <div className="flex-1" />
         <BooleanToolbar />
