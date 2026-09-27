@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '@app/store';
+import { Icon } from '@shared/ui/Icon';
 
 function OutlinerNode({ id, depth }: { id: string; depth: number }) {
   const node = useAppStore((s) => s.nodes[id]);
@@ -32,10 +33,13 @@ function OutlinerNode({ id, depth }: { id: string; depth: number }) {
           <button
             onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v); }}
             className="w-4 text-xs"
+            aria-label={expanded ? 'Свернуть группу' : 'Развернуть группу'}
           >
-            {expanded ? '▾' : '▸'}
+            {/* был ▾ / ▸ → ChevronDown / ChevronRight */}
+            <Icon name={expanded ? 'chevronDown' : 'chevronRight'} size={12} />
           </button>
         )}
+        {isGroup && <Icon name={expanded ? 'folderOpen' : 'folder'} size={12} />}
         <span className="truncate">{node.name}</span>
       </div>
       {isGroup && expanded && node.childrenIds.map((cid) => (

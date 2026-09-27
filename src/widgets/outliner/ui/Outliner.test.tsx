@@ -75,10 +75,11 @@ describe('Outliner', () => {
     render(<Outliner />);
     expect(screen.getByText('Child')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('▾'));
+    // был getByText('▾'/'▸') → кнопка раскрытия теперь с aria-label (иконка ChevronDown/ChevronRight)
+    fireEvent.click(screen.getByRole('button', { name: 'Свернуть группу' }));
     expect(screen.queryByText('Child')).toBeNull();
 
-    fireEvent.click(screen.getByText('▸'));
+    fireEvent.click(screen.getByRole('button', { name: 'Развернуть группу' }));
     expect(screen.getByText('Child')).toBeTruthy();
   });
 });

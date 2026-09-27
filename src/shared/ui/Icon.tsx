@@ -2,11 +2,14 @@ import {
   AlertTriangle,
   Blend,
   ChevronDown,
+  ChevronRight,
   Circle,
   Combine,
   Cylinder,
   Donut,
   Ellipsis,
+  Folder,
+  FolderOpen,
   Minus,
   Moon,
   Redo2,
@@ -40,6 +43,9 @@ export const ICONS = {
   themeDark: Sun,       // был ☀️
   warning: AlertTriangle, // был ⚠️
   chevronDown: ChevronDown, // был ▾ (FileMenu)
+  chevronRight: ChevronRight, // был ▸ (Outliner, свёрнутая группа)
+  folder: Folder,           // Outliner: группа (свёрнута)
+  folderOpen: FolderOpen,   // Outliner: группа (развернута)
   ellipsis: Ellipsis,       // был … (busy-индикатор FileMenu)
 } as const;
 
