@@ -59,8 +59,11 @@ describe('Inspector', () => {
     const n = makeNode({ id: 'n1', name: 'Cube' });
     setScene({ n1: n }, ['n1'], ['n1']);
     render(<Inspector />);
+    // NumberInput коммитит только по Enter/blur (не на каждое нажатие)
     const posInputs = screen.getAllByDisplayValue('0');
     fireEvent.change(posInputs[0], { target: { value: '5' } });
+    expect(useAppStore.getState().nodes['n1'].transform.position[0]).toBe(0); // ещё не применено
+    fireEvent.keyDown(posInputs[0], { key: 'Enter' });
     expect(useAppStore.getState().nodes['n1'].transform.position[0]).toBe(5);
   });
 

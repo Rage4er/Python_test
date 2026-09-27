@@ -2,6 +2,7 @@ import { useAppStore } from '@app/store';
 import { SetNodePropertyCommand } from '@features/edit-property/model/SetNodePropertyCommand';
 import { GroupCommand, UngroupCommand } from '@features/group/model/GroupCommand';
 import type { SceneNode } from '@entities/scene/types';
+import { NumberInput } from '@shared/ui/NumberInput';
 
 export function Inspector() {
   const selection = useAppStore((s) => s.selection);
@@ -64,18 +65,19 @@ export function Inspector() {
       </Field>
 
       <Field label="Позиция (mm)">
-        <Vec3 value={node.transform.position} onChange={(a, v) => patchTransform('position', a, v)} />
+        <Vec3 value={node.transform.position} step={0.1} precision={3} unit="mm" onChange={(a, v) => patchTransform('position', a, v)} />
       </Field>
 
       <Field label="Вращение (°)">
         <Vec3
           value={node.transform.rotation.map((r) => (r * 180) / Math.PI) as [number, number, number]}
+          step={15} precision={2} unit="°"
           onChange={(a, v) => patchTransform('rotation', a, (v * Math.PI) / 180)}
         />
       </Field>
 
       <Field label="Масштаб">
-        <Vec3 value={node.transform.scale} step={0.1} onChange={(a, v) => patchTransform('scale', a, v)} />
+        <Vec3 value={node.transform.scale} step={0.1} precision={3} onChange={(a, v) => patchTransform('scale', a, v)} />
       </Field>
 
       <Field label="Цвет">
@@ -88,11 +90,19 @@ export function Inspector() {
       </Field>
 
       <Field label="Прозрачность">
-        <input
-          type="range" min={0.1} max={1} step={0.05}
-          value={node.material.opacity}
-          onChange={(e) => patchMaterial('opacity', parseFloat(e.target.value))}
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="range" min={0.1} max={1} step={0.05}
+            value={node.material.opacity}
+            onChange={(e) => patchMaterial('opacity', parseFloat(e.target.value))}
+          />
+          <NumberInput
+            value={node.material.opacity}
+            onChange={(v) => patchMaterial('opacity', v)}
+            step={0.05} min={0.1} max={1} precision={2}
+            label="Прозрачность" className="w-20"
+          />
+        </div>
       </Field>
 
       <Field label="Дырка (hole)">
@@ -111,17 +121,30 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Vec3({ value, onChange, step = 1 }: { value: [number, number, number]; onChange: (axis: 0 | 1 | 2, v: number) => void; step?: number }) {
+function Vec3({
+  value,
+  onChange,
+  step = 0.1,
+  precision = 3,
+  unit,
+}: {
+  value: [number, number, number];
+  onChange: (axis: 0 | 1 | 2, v: number) => void;
+  step?: number;
+  precision?: number;
+  unit?: string;
+}) {
   return (
     <div className="grid grid-cols-3 gap-1">
-      {([0, 1, 2] as const).map((a) => (
-        <input
-          key={a}
-          type="number"
+      {(['X', 'Y', 'Z'] as const).map((axis, a) => (
+        <NumberInput
+          key={axis}
+          label={`${axis}${unit ? ` (${unit})` : ''}`}
+          value={value[a]}
+          onChange={(v) => onChange(a as 0 | 1 | 2, v)}
           step={step}
-          value={Number(value[a].toFixed(3))}
-          onChange={(e) => onChange(a, parseFloat(e.target.value) || 0)}
-          className="px-1 py-1 bg-bg border border-border rounded text-xs"
+          precision={precision}
+          unit={unit}
         />
       ))}
     </div>
