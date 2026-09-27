@@ -54,6 +54,8 @@ export function Viewport() {
       w.__THREE_SCENE__ = adapter.scene;
       w.__THREE_CAMERA__ = adapter.camera;
       w.__THREE_RENDERER__ = adapter.renderer;
+      // Store тоже экспонируем: E2E читает/ставит selection и проверяет результат CSG
+      w.__THREE_STORE__ = useAppStore;
     }
 
     // Initial sync
