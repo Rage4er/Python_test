@@ -107,7 +107,8 @@
 - [x] ✅ BooleanToolbar — 100% stmts (commit f4e0bb4)
 - [x] ✅ FileMenu — 97.26% stmts (commit e966cef)
 - [x] ✅ ModelLoader — 100% stmts (commit b15e16b)
-- [x] ✅ Иконки lucide-react вместо эмодзи (commit 81ad604e)
+- [x] ✅ Иконки lucide-react вместо эмодзи (commit 81ad604e, финал a4759798)
+- [x] ✅ NumberInput в Inspector: draft-state, коммит по Enter/blur, Escape-откат, clamp min/max, precision, unit (commit eaf0c3c5)
 
 ### Не покрыто юнит-тестами (требует E2E)
 - [ ] Viewport.tsx — three.js / WebGL / OrbitControls
@@ -164,7 +165,7 @@
 | Время загрузки | ~2 сек | <1 сек |
 | Поддерживаемые объекты | ~200 в сцене | >1000 |
 | Время CSG операции | 2–10 сек | <1 сек |
-| Охват тестами | 60.3% statements / 89.33% branches (173 теста) | >80% statements (без Viewport/App) |
+| Охват тестами | 61.97% statements / 90.18% branches (189 тестов) | >80% statements (без Viewport/App) |
 
 ---
 
@@ -179,5 +180,5 @@
 
 ---
 
-**Последнее обновление:** 27 сентября 2026 г.  
+**Последнее обновление:** 28 сентября 2026 г.  
 **Статус:** Активно разрабатывается 🚀
