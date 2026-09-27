@@ -5,7 +5,7 @@
 // а все async-цепочки оборачиваются в await act(async () => ...).
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act } from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAppStore } from '@app/store';
 
 const mocks = vi.hoisted(() => ({
@@ -264,9 +264,15 @@ describe('FileMenu — импорт STL/OBJ', () => {
     await act(async () => {
       fireEvent.change(meshInput, { target: { files: [new File(['x'], 'broken.stl')] } });
     });
-    expect(alertSpy).toHaveBeenCalledWith('Ошибка импорта broken.stl: bad stl');
-    // после завершения кнопка снова активна (busy=false)
-    await openMenu();
-    expect((screen.getByRole('button', { name: 'Экспорт OBJ' }) as HTMLButtonElement).disabled).toBe(false);
+    // alert приходит из async-цепочки catch → ждём детерминированно,
+    // без ручного ожидания и без гонки (стабилизация flaky-теста).
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Ошибка импорта broken.stl: bad stl');
+    }, { timeout: 2000 });
+    // после завершения кнопка снова активна (busy=false) — тоже через waitFor
+    await waitFor(async () => {
+      await openMenu();
+      expect((screen.getByRole('button', { name: 'Экспорт OBJ' }) as HTMLButtonElement).disabled).toBe(false);
+    }, { timeout: 2000 });
   });
 });
