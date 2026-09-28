@@ -1,5 +1,15 @@
-(empty)node_modules/
-coverage/
+# Dependencies
+node_modules/
+
+# Build artifacts
 dist/
+build/
+
+# Test/coverage/report artifacts
+coverage/
 playwright-report/
 test-results/
+
+# Environment files
+.env
+.env.local
