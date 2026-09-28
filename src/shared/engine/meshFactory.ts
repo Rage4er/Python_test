@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { SceneNode, GeometrySpec } from '@entities/scene/types';
 import { getCustomGeometry } from './csg/geometryCache';
+import { logger } from '@shared/lib/logger';
 
 const MAX_GEOMETRY_CACHE = 200;
 const geometryCache = new Map<string, THREE.BufferGeometry>();
@@ -27,7 +28,10 @@ function setCache(key: string, geom: THREE.BufferGeometry): void {
 export function buildGeometry(spec: GeometrySpec): THREE.BufferGeometry {
   if (spec.kind === 'custom' && spec.assetId) {
     const cached = getCustomGeometry(spec.assetId);
-    if (!cached) throw new Error(`Custom geometry not found: ${spec.assetId}`);
+    if (!cached) {
+      logger.error('meshFactory', 'custom geometry not found', { assetId: spec.assetId });
+      throw new Error(`Custom geometry not found: ${spec.assetId}`);
+    }
     return cached;
   }
 
@@ -55,6 +59,7 @@ export function buildGeometry(spec: GeometrySpec): THREE.BufferGeometry {
       geometry = new THREE.TorusGeometry(p.radius ?? 5, p.tube ?? 1.5, 16, 48);
       break;
     default:
+      logger.warn('meshFactory', 'fallback to default', { kind: spec.kind });
       geometry = new THREE.BoxGeometry(10, 10, 10);
   }
 
@@ -88,6 +93,7 @@ export function buildObject(node: SceneNode): THREE.Object3D {
   const geometry = buildGeometry(node.geometry);
   const material = buildMaterial(node);
   const mesh = new THREE.Mesh(geometry, material);
+  logger.debug('meshFactory', 'build', { nodeId: node.id, kind: node.geometry.kind });
   mesh.userData.id = node.id;
   mesh.name = node.name;
   mesh.userData.geometryKey = `${node.geometry.kind}:${JSON.stringify(node.geometry.params)}:${(node.geometry as any).assetId ?? ''}`;

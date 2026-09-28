@@ -6,6 +6,7 @@ import type { SceneNode, SceneState, Transform, PrimitiveType } from '@entities/
 import { buildObject, applyTransform, extractTransform } from './meshFactory';
 import { diffScene } from './syncDiff';
 import { setGlobalAdapter } from './engineRef';
+import { logger } from '@shared/lib/logger';
 
 const BVH_THRESHOLD = 500;
 
@@ -80,6 +81,8 @@ export class EngineAdapter {
     const grid = new THREE.GridHelper(400, 400, 0xcccccc, 0xe0e0e0);
     grid.name = '__grid__';
     this.scene.add(grid);
+
+    logger.info('Scene', 'init', { children: this.scene.children.map((c) => c.type) });
 
     // Controls
     this.orbit = new OrbitControls(this.camera, canvas);
@@ -306,6 +309,7 @@ export class EngineAdapter {
   }
 
   async syncScene(state: SceneState): Promise<void> {
+    logger.debug('EngineAdapter', 'syncScene', { nodeCount: Object.keys(state.nodes).length });
     const diff = diffScene(this.lastNodes ? { nodes: this.lastNodes } : null, state);
 
     // Удаление (дети перед родителями)
@@ -317,12 +321,19 @@ export class EngineAdapter {
     for (const id of removeOrder) {
       const obj = this.objects.get(id);
       if (!obj) continue;
+      // detach гизмо, если удаляемый объект — текущий attached (иначе
+      // TransformControls остаётся смотреть на объект вне scene graph)
+      if ((this.transform as unknown as { object?: THREE.Object3D }).object === obj) {
+        logger.debug('EngineAdapter', 'detach before remove', { nodeId: id });
+        this.transform.detach();
+      }
       obj.parent?.remove(obj);
       if (obj instanceof THREE.Mesh) {
         obj.geometry.dispose();
         (obj.material as THREE.Material).dispose();
       }
       this.objects.delete(id);
+      logger.debug('EngineAdapter', 'remove mesh', { nodeId: id });
     }
 
     // Добавление/Обновление (родители перед детьми)
@@ -362,6 +373,7 @@ export class EngineAdapter {
       if (obj.parent !== targetParent) {
         obj.parent?.remove(obj);
         targetParent.add(obj);
+        logger.debug('EngineAdapter', 'add mesh', { nodeId: id });
       }
     }
 
@@ -413,8 +425,10 @@ export class EngineAdapter {
       const obj = this.objects.get(ids[0]);
       if (obj) {
         this.destroyPivot();
+        logger.debug('EngineAdapter', 'attach', { nodeId: ids[0], inScene: !!obj.parent });
         this.transform.attach(obj);
       } else {
+        logger.warn('EngineAdapter', 'attach skipped: not in scene', { nodeId: ids[0] });
         this.transform.detach();
       }
       return;

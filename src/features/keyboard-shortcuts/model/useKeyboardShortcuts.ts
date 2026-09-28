@@ -3,14 +3,20 @@ import { useAppStore } from '@app/store';
 import { DeleteNodeCommand } from '@features/delete-node/model/DeleteNodeCommand';
 import { GroupCommand } from '@features/group/model/GroupCommand';
 import { UngroupCommand } from '@features/group/model/UngroupCommand';
+import { logger } from '@shared/lib/logger';
 
 export function useKeyboardShortcuts(): void {
   const store = useAppStore;
 
   useEffect(() => {
+    logger.debug('Hotkeys', 'registered', { count: 7 });
     const handleKeyDown = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
       const state = store.getState();
+      logger.debug('Hotkeys', 'key', {
+        key: e.code, ctrl: mod, shift: e.shiftKey,
+        target: (e.target as HTMLElement | null)?.tagName,
+      });
 
       // Delete
       if (e.code === 'Delete' || e.code === 'Backspace') {
@@ -68,6 +74,8 @@ export function useKeyboardShortcuts(): void {
         state.setSelection([]);
         return;
       }
+
+      logger.debug('Hotkeys', 'unhandled', { key: e.code });
     };
 
     window.addEventListener('keydown', handleKeyDown);
