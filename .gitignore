@@ -1,25 +1,5 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
-# Coverage
+(empty)node_modules/
 coverage/
-
-# TypeScript build info
-*.tsbuildinfo
-
-# Logs
-*.log
-
-# Editor
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-
-# Playwright
+dist/
 playwright-report/
 test-results/
