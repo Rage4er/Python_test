@@ -29,8 +29,14 @@ export function buildGeometry(spec: GeometrySpec): THREE.BufferGeometry {
   if (spec.kind === 'custom' && spec.assetId) {
     const cached = getCustomGeometry(spec.assetId);
     if (!cached) {
-      logger.error('meshFactory', 'custom geometry not found', { assetId: spec.assetId });
-      throw new Error(`Custom geometry not found: ${spec.assetId}`);
+      // Graceful fallback: custom geometries live in an in-memory registry and
+      // are not serialized to localStorage, so after a page reload the assetId
+      // may legitimately be missing. Throwing here would break every subsequent
+      // syncScene call — return an empty placeholder instead.
+      logger.error('meshFactory', 'custom geometry not found, using placeholder', {
+        assetId: spec.assetId,
+      });
+      return new THREE.BufferGeometry();
     }
     return cached;
   }
