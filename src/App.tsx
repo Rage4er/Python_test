@@ -6,6 +6,7 @@ import { Inspector } from '@widgets/inspector/ui/Inspector';
 import { Outliner } from '@widgets/outliner/ui/Outliner';
 import { Viewport } from '@widgets/viewport/ui/Viewport';
 import { ContextMenu } from '@features/context-menu/ui/ContextMenu';
+import { useKeyboardShortcuts } from '@features/keyboard-shortcuts/model/useKeyboardShortcuts';
 import { Icon } from '@shared/ui/Icon';
 import { useEffect } from 'react';
 
@@ -14,6 +15,9 @@ export function App() {
   const redo = useAppStore((s) => s.redo);
   const theme = useAppStore((s) => s.theme);
   const toggleTheme = useAppStore((s) => s.toggleTheme);
+
+  // Глобальные горячие клавиши (Delete, Ctrl+Z/Y, Ctrl+D/G/A, Escape)
+  useKeyboardShortcuts();
 
   // Autosave
   useEffect(() => {
