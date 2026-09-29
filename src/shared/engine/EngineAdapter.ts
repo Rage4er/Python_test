@@ -75,12 +75,34 @@ export class EngineAdapter {
     dir.position.set(50, 80, 40);
     dir.castShadow = true;
     dir.shadow.mapSize.set(2048, 2048);
+    // Настройки теней: bias убирает self-shadowing артефакты (квадратная
+    // тень в (0,0,0) при отсутствии приёмника), ortho-frustum покрывает поле
+    dir.shadow.bias = -0.0001;
+    dir.shadow.normalBias = 0.02;
+    dir.shadow.camera.near = 0.5;
+    dir.shadow.camera.far = 500;
+    dir.shadow.camera.left = -200;
+    dir.shadow.camera.right = 200;
+    dir.shadow.camera.top = 200;
+    dir.shadow.camera.bottom = -200;
     this.scene.add(dir);
 
     // Ground grid
     const grid = new THREE.GridHelper(400, 400, 0xcccccc, 0xe0e0e0);
     grid.name = '__grid__';
     this.scene.add(grid);
+
+    // Ground plane — приёмник теней (ShadowMaterial: невидим, кроме теней).
+    // НЕ имеет userData.id → не привязан к ноде store и не удаляется syncScene.
+    const groundGeometry = new THREE.PlaneGeometry(400, 400);
+    const groundMaterial = new THREE.ShadowMaterial({ opacity: 0.3 });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.01; // чуть ниже сетки
+    ground.receiveShadow = true;
+    ground.castShadow = false; // КРИТИЧНО: сам не отбрасывает тень
+    ground.name = 'Ground';
+    this.scene.add(ground);
 
     logger.info('Scene', 'init', { children: this.scene.children.map((c) => c.type) });
 
@@ -370,7 +392,10 @@ export class EngineAdapter {
         }
         obj = buildObject(node);
         if (obj instanceof THREE.Mesh) {
-          obj.castShadow = true;
+          // Тень отбрасывают только видимые непрозрачные объекты:
+          // hidden-нода (visible=false) и hole-материал (isHole) не должны
+          // создавать фантомную тень в сцене.
+          obj.castShadow = node.visible !== false && !node.material?.isHole;
           obj.receiveShadow = true;
           if (obj.geometry.attributes.position.count > BVH_THRESHOLD) {
             // ленивая загрузка three-mesh-bvh (~120 kB raw): BVH нужен только

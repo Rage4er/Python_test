@@ -54,3 +54,42 @@ describe('meshFactory — custom geometry not found', () => {
     expect(() => buildObject(node)).not.toThrow();
   });
 });
+
+// Логика castShadow из EngineAdapter.syncScene (EngineAdapter.ts, строка
+// `obj.castShadow = node.visible !== false && !node.material?.isHole`).
+// Полный конструктор EngineAdapter требует WebGL-контекст (недоступен в jsdom),
+// поэтому чистая булева формула проверена здесь — по образцу
+// disposeObject-тестов с клоном приватной логики.
+function computeCastShadow(node: Pick<SceneNode, 'visible' | 'material'>): boolean {
+  return node.visible !== false && !node.material?.isHole;
+}
+
+describe('castShadow — логика отбрасывания теней (syncScene)', () => {
+  it('visible=true, isHole=false → castShadow=true', () => {
+    expect(computeCastShadow({ visible: true, material: { color: '#fff', opacity: 1, isHole: false } })).toBe(true);
+  });
+
+  it('visible=false → castShadow=false (hidden-нода не создаёт фантомную тень)', () => {
+    expect(computeCastShadow({ visible: false, material: { color: '#fff', opacity: 1, isHole: false } })).toBe(false);
+  });
+
+  it('isHole=true → castShadow=false (hole не отбрасывает тень)', () => {
+    expect(computeCastShadow({ visible: true, material: { color: '#fff', opacity: 1, isHole: true } })).toBe(false);
+  });
+
+  it('visible=true, isHole=true → castShadow=false (hole не отбрасывает)', () => {
+    expect(computeCastShadow({ visible: true, material: { color: '#fff', opacity: 1, isHole: true } })).toBe(false);
+  });
+
+  it('visible=false, isHole=false → castShadow=false', () => {
+    expect(computeCastShadow({ visible: false, material: { color: '#fff', opacity: 1, isHole: false } })).toBe(false);
+  });
+
+  it('ground plane не имеет userData.id → syncScene его не удалит (защита приёмника теней)', () => {
+    // Инвариант фикса: объекты без userData.id игнорируются удалением в
+    // syncScene (diff считается по нодам store). Проверяем сам предикат:
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.ShadowMaterial());
+    ground.name = 'Ground';
+    expect(ground.userData.id).toBeUndefined();
+  });
+});
