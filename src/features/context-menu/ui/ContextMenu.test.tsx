@@ -146,4 +146,102 @@ describe('ContextMenu', () => {
     fireEvent.click(screen.getByText('Сделать hole'));
     expect(useAppStore.getState().nodes['a'].material.isHole).toBe(true);
   });
+
+  // === Фикс Duplicate: копия сохраняет geometry kind и params целиком ===
+  const getCopy = (sourceId: string): SceneNode => {
+    const st = useAppStore.getState();
+    const copyId = Object.keys(st.nodes).find((id) => id !== sourceId)!;
+    return st.nodes[copyId];
+  };
+
+  it('duplicate cylinder → новый cylinder с теми же params (radius, height)', () => {
+    const a = makeNode({
+      id: 'a', name: 'Cyl', type: 'cylinder',
+      geometry: { kind: 'cylinder', params: { radius: 2.5, height: 7 } },
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.geometry.kind).toBe('cylinder');
+    expect(c.geometry.params).toEqual({ radius: 2.5, height: 7 });
+  });
+
+  it('duplicate cone → cone с теми же params', () => {
+    const a = makeNode({
+      id: 'a', name: 'Cone', type: 'cone',
+      geometry: { kind: 'cone', params: { radius: 1.5, height: 4 } },
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.geometry.kind).toBe('cone');
+    expect(c.geometry.params).toEqual({ radius: 1.5, height: 4 });
+  });
+
+  it('duplicate custom CSG → custom + тот же assetId', () => {
+    const a = makeNode({
+      id: 'a', name: 'CSG', type: 'mesh',
+      geometry: { kind: 'custom', params: {}, assetId: 'asset-123' },
+      booleanOp: 'subtract',
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.geometry.kind).toBe('custom');
+    expect(c.geometry.assetId).toBe('asset-123');
+    expect(c.booleanOp).toBe('subtract');
+  });
+
+  it('duplicate sphere → sphere', () => {
+    const a = makeNode({
+      id: 'a', name: 'Sph', type: 'sphere',
+      geometry: { kind: 'sphere', params: { radius: 3 } },
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.geometry.kind).toBe('sphere');
+    expect(c.geometry.params).toEqual({ radius: 3 });
+  });
+
+  it('duplicate box → box', () => {
+    const a = makeNode({
+      id: 'a', name: 'Box',
+      geometry: { kind: 'box', params: { width: 2, height: 3, depth: 4 } },
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.geometry.kind).toBe('box');
+    expect(c.geometry.params).toEqual({ width: 2, height: 3, depth: 4 });
+  });
+
+  it('duplicate → смещение позиции +2 по X (Y/Z без изменений)', () => {
+    const a = makeNode({
+      id: 'a', name: 'Pos',
+      transform: { position: [10, 20, 30], rotation: [0, 0, 0], scale: [1, 1, 1] },
+    });
+    useAppStore.setState({ nodes: { a }, rootIds: ['a'], selection: ['a'] });
+    render(<ContextMenu />);
+    contextMenuOnCanvas();
+
+    fireEvent.click(screen.getByText('Дублировать'));
+    const c = getCopy('a');
+    expect(c.transform.position).toEqual([12, 20, 30]);
+  });
 });
