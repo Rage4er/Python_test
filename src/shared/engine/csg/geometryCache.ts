@@ -24,4 +24,12 @@ export function clearCustomGeometryCache(): void {
   }
   customGeometryCache.clear();
 }
+
+/**
+ * Возвращает все зарегистрированные custom-геометрии.
+ * Используется для сериализации реестра в localStorage (CSG persistence).
+ */
+export function getAllCustomGeometries(): Map<string, THREE.BufferGeometry> {
+  return new Map(customGeometryCache);
+}
 // Дата актуализации: 24 мая 2024 г.

@@ -12,6 +12,11 @@ import {
 import { useAppStore } from '@app/store';
 import { setGlobalAdapter } from '@shared/engine/engineRef';
 import type { SceneNode } from '@entities/scene/types';
+import {
+  registerCustomGeometry,
+  getCustomGeometry,
+  clearCustomGeometryCache,
+} from '@shared/engine/csg/geometryCache';
 
 // ВАЖНО: не использовать vi.resetModules() в этом файле.
 // resetModules создаёт ВТОРОЙ экземпляр './exportSTL'/'./exportOBJ' (со своим
@@ -50,6 +55,7 @@ beforeEach(() => {
   localStorage.clear();
   setGlobalAdapter(null);
   setState({}, []);
+  clearCustomGeometryCache();
   vi.restoreAllMocks();
 });
 
@@ -440,4 +446,64 @@ describe('экспорт STL/OBJ против fake-adapter (интеграция
   });
 });
 
-// Дата актуализации: 24 сентября 2026 г.
+describe('saveToLocal / loadFromLocal — persistence custom geometries (CSG)', () => {
+  test('round-trip: custom geometry выживает save+load', () => {
+    // 1. Создать geometry и зарегистрировать
+    const geom = new THREE.BoxGeometry(2, 2, 2);
+    registerCustomGeometry('test-asset', geom);
+
+    // 2. Сохранить сцену
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    saveToLocal();
+
+    // 3. Очистить реестр (симуляция перезагрузки страницы)
+    clearCustomGeometryCache();
+    expect(getCustomGeometry('test-asset')).toBeUndefined();
+
+    // 4. Загрузить
+    expect(loadFromLocal()).toBe(true);
+
+    // 5. Проверить восстановление
+    const restored = getCustomGeometry('test-asset');
+    expect(restored).toBeDefined();
+    expect(restored!.attributes.position.count).toBe(geom.attributes.position.count);
+    // данные вершин идентичны
+    expect(Array.from(restored!.attributes.position.array as Float32Array)).toEqual(
+      Array.from(geom.attributes.position.array as Float32Array)
+    );
+    geom.dispose();
+    restored!.dispose();
+  });
+
+  test('пустой реестр: save не создаёт ключ геометрий, load не падает', () => {
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    saveToLocal();
+    expect(localStorage.getItem('tinkercad-clone:customGeometries')).toBeNull();
+    expect(loadFromLocal()).toBe(true);
+  });
+
+  test('повторный save перезаписывает геометрии (без дублей)', () => {
+    registerCustomGeometry('g1', new THREE.BoxGeometry(1, 1, 1));
+    setState({ a: makeNode({ id: 'a' }) }, ['a']);
+    saveToLocal();
+    clearCustomGeometryCache();
+    registerCustomGeometry('g2', new THREE.SphereGeometry(1, 8, 6));
+    saveToLocal();
+    loadFromLocal();
+    expect(getCustomGeometry('g1')).toBeUndefined();
+    expect(getCustomGeometry('g2')).toBeDefined();
+  });
+
+  test('размер JSON Union двух кубов (~4032 вершины) — логгируется для ШАГ 4', () => {
+    // CSG union двух кубов даёт нетипизированную геометрию; оценим порядок размера
+    const geom = new THREE.BoxGeometry(10, 10, 10); // 24 вершины — базовая мера
+    const jsonSize = JSON.stringify(geom.toJSON()).length;
+    // экстраполяция на 4032 вершины (позиции + нормали + индексы)
+    const estimatedKB = (jsonSize / 24) * 4032 / 1024;
+    console.log(`[size-check] box(24v) JSON=${jsonSize} B, ~4032v estimate=${estimatedKB.toFixed(0)} KB`);
+    expect(estimatedKB).toBeLessThan(2 * 1024); // далеко до лимита предупреждения 2 MB
+    geom.dispose();
+  });
+});
+
+// Дата актуализации: 29 сентября 2026 г.
