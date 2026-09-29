@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@app/store';
 import { DeleteMultipleCommand } from '@features/delete-node/model/DeleteNodeCommand';
-import { CreateNodeCommand } from '@features/create-node/model/CreateNodeCommand';
+import { DuplicateNodeCommand } from '@features/duplicate-node/model/DuplicateNodeCommand';
 import { SetNodePropertyCommand } from '@features/edit-property/model/SetNodePropertyCommand';
 import { logger } from '@shared/lib/logger';
 
@@ -39,17 +39,7 @@ export function ContextMenu() {
         for (const id of selection) {
           const n = nodes[id];
           if (!n) continue;
-          const proto = n.geometry.kind === 'sphere' ? 'sphere' : 'box';
-          // BUG-диагностика: custom-геометрия (CSG) не копируется — прототип всегда box
-          logger.info('Duplicate', 'copy', { sourceId: id, sourceKind: n.geometry.kind, proto });
-          execute(new CreateNodeCommand({
-            type: n.geometry.kind as any,
-            position: [n.transform.position[0] + 5, n.transform.position[1], n.transform.position[2] + 5],
-            name: `${n.name} (copy)`,
-          }));
-          if (n.geometry.kind === 'custom') {
-            logger.warn('Duplicate', 'fallback to box', { sourceId: id, sourceKind: n.geometry.kind });
-          }
+          execute(new DuplicateNodeCommand(n));
         }
       },
     },

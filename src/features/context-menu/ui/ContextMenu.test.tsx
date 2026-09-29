@@ -133,7 +133,8 @@ describe('ContextMenu', () => {
     const copy = ids.find((id) => id !== 'a')!;
     const c = useAppStore.getState().nodes[copy];
     expect(c.name).toBe('Cube (copy)');
-    expect(c.transform.position).toEqual([6, 2, 8]);
+    // фикс Duplicate: смещение только по X на +2, геометрия копируется целиком
+    expect(c.transform.position).toEqual([3, 2, 3]);
   });
 
   it('«Сделать hole» → toggle material.isHole через команду', () => {
