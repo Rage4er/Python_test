@@ -347,6 +347,27 @@ export class EngineAdapter {
 
       let obj: THREE.Object3D;
       if (isAdded || !existing) {
+        // Защита от дублей: syncScene может вызываться дважды для одного
+        // набора нод (StrictMode / двойной mount Viewport). Если объект с
+        // таким nodeId уже есть в сцене (по userData.id), но его нет в
+        // this.objects — это осиротевший дубль из предыдущего прохода:
+        // удаляем его до создания нового, иначе в scene.children окажутся
+        // два меша на одну ноду (старый «призрачный» слой поверх нового).
+        const orphans = this.scene.children.filter(
+          (child) => child !== existing && child.userData?.id === id
+        );
+        for (const orphan of orphans) {
+          logger.debug('EngineAdapter', 'remove duplicate mesh before add', { nodeId: id });
+          orphan.parent?.remove(orphan);
+          if (orphan instanceof THREE.Mesh) {
+            // Геометрии из кэша/реестра CSG переиспользуются — не dispose'им
+            // (флаг exported ставится в buildObject), иначе новый меш и
+            // другие владельцы получат уже освобождённую геометрию.
+            const og = orphan.geometry as THREE.BufferGeometry & { exported?: boolean };
+            if (!og.exported) og.dispose();
+            (orphan.material as THREE.Material).dispose();
+          }
+        }
         obj = buildObject(node);
         if (obj instanceof THREE.Mesh) {
           obj.castShadow = true;

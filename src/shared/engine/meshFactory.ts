@@ -87,6 +87,18 @@ export function buildMaterial(node: SceneNode): THREE.MeshStandardMaterial {
 }
 
 export function buildObject(node: SceneNode): THREE.Object3D {
+  return buildObjectFromGeometry(node, buildGeometry(node.geometry));
+}
+
+/**
+ * Тот же buildObject, но с возможностью передать готовую геометрию
+ * (например, переиспользуемую) — используется в тестах и там, где
+ * меш нужно собрать без обращения к реестру/кэшу геометрий.
+ */
+export function buildObjectFromGeometry(
+  node: SceneNode,
+  geometry: THREE.BufferGeometry
+): THREE.Object3D {
   if (node.type === 'group' || node.geometry.kind === 'group') {
     const group = new THREE.Group();
     group.name = node.name;
@@ -96,7 +108,10 @@ export function buildObject(node: SceneNode): THREE.Object3D {
     return group;
   }
 
-  const geometry = buildGeometry(node.geometry);
+  // Флаг «геометрия передана во внешний объект»: mesh-геометрии кэшируются
+  // переиспользуемо (geometryCache) и из реестра CSG — их нельзя dispose'ить
+  // при удалении одного меша, иначе сломаются остальные владельцы.
+  (geometry as THREE.BufferGeometry & { exported?: boolean }).exported = true;
   const material = buildMaterial(node);
   const mesh = new THREE.Mesh(geometry, material);
   logger.debug('meshFactory', 'build', { nodeId: node.id, kind: node.geometry.kind });
