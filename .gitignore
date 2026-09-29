@@ -13,3 +13,6 @@ test-results/
 # Environment files
 .env
 .env.local
+
+# TypeScript build info
+tsconfig.tsbuildinfo
